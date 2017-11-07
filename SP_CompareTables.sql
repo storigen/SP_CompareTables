@@ -69,8 +69,8 @@ SET @columns = ''
  
 SET @SubQry = 
  CHAR(9)+ 'SELECT ''' + @table1 + ''' AS TableName, ' + SUBSTRING(@columns, 0, LEN(@columns)) 		+ CHAR(13)+CHAR(10)
-+CHAR(9)+ 'FROM ' + @Table1 																		+ CHAR(13)+CHAR(10)
-+CHAR(9)+ 'UNION ALL'																				+ CHAR(13)+CHAR(10)
++CHAR(9)+ 'FROM ' + @Table1 										+ CHAR(13)+CHAR(10)
++CHAR(9)+ 'UNION ALL'											+ CHAR(13)+CHAR(10)
 +CHAR(9)+ 'SELECT ''' + @table2 + ''' As TableName, ' + SUBSTRING(@columns, 0, LEN(@columns))		+ CHAR(13)+CHAR(10)
 +CHAR(9)+ 'FROM ' + @Table2
 
@@ -78,17 +78,17 @@ SET @SubQry =
 
 SET @SQL = 
   'SELECT Max(TableName) as TableName, ' + SUBSTRING(@columns, 0, LEN(@columns))			+ CHAR(13)+CHAR(10)
-+ 'FROM ('																					+ CHAR(13)+CHAR(10)
-			+ @SubQry																		+ CHAR(13)+CHAR(10)
-+       ') A '																				+ CHAR(13)+CHAR(10)
-+ 'GROUP BY '							+ SUBSTRING(@columns, 0, LEN(@columns))				+ CHAR(13)+CHAR(10)
-+ 'HAVING COUNT(*) = 1'																		+ CHAR(13)+CHAR(10)
---+ 'ORDER BY' + SUBSTRING(@columns, 0, LEN(@columns))										+ CHAR(13)+CHAR(10)
++ 'FROM ('												+ CHAR(13)+CHAR(10)
+			+ @SubQry									+ CHAR(13)+CHAR(10)
++       ') A '												+ CHAR(13)+CHAR(10)
++ 'GROUP BY '							+ SUBSTRING(@columns, 0, LEN(@columns))	+ CHAR(13)+CHAR(10)
++ 'HAVING COUNT(*) = 1'											+ CHAR(13)+CHAR(10)
+--+ 'ORDER BY' + SUBSTRING(@columns, 0, LEN(@columns))							+ CHAR(13)+CHAR(10)
  
  
 PRINT '************************************************************************************************************************'
 																											    + CHAR(13)+CHAR(10)+
-	  'Any rows where there are any data value differences between two tables are listed in the data grid.'		+ CHAR(13)+CHAR(10)+
+	  'Any rows where there are any data value differences between two tables are listed in the data grid.'	    + CHAR(13)+CHAR(10)+
 	  'If there are entries that are listed for only one table, this means that data is unique to that table'   + CHAR(13)+CHAR(10)+
 	  '************************************************************************************************************************'
 	  
