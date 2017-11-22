@@ -25,21 +25,10 @@ DESCRIPTION:	Returns all rows from either table that do NOT match the other tabl
 SET NOCOUNT ON; 
 
 
-
-
-
-
-
-
--------------------------------------------------------------------------------------------------
---1. DETERMINE SHARED COLUMNS TO COMPARE
--------------------------------------------------------------------------------------------------
-
-
-
 DECLARE @SubQry VARCHAR(max);
 DECLARE @SQL VARCHAR(max);
 DECLARE @columns VARCHAR(max);
+DECLARE @ordercolumns VARCHAR(MAX);
 
 
  
@@ -51,16 +40,35 @@ SET @columns = ''
 			SELECT  name
 			FROM sys.columns 
 			WHERE OBJECT_ID = OBJECT_ID(@table1)
-		) T1
+		) t1
 	INNER JOIN
 		(
 			SELECT  name
 			FROM sys.columns 
 			WHERE OBJECT_ID = OBJECT_ID(@table2)    
-		) T2 
+		) t2 
 			on T1.NAME=T2.NAME
 
- 
+
+SET @ordercolumns = ''
+
+	SELECT @ordercolumns = @ordercolumns + '['+ t1.name+']' + ', '
+	FROM
+	(
+		SELECT DISTINCT column_name AS name
+		FROM information_schema.columns
+		WHERE table_name = @table1
+		AND DATA_TYPE = 'VARCHAR'
+	) t1
+	INNER JOIN
+	(
+		SELECT DISTINCT column_name AS name
+		FROM information_schema.columns
+		WHERE  table_name = @table2
+		AND DATA_TYPE = 'VARCHAR'
+	) t2 
+		ON t1.name=t2.name
+
 
 -------------------------------------------------------------------------------------------------
 --2. RUN COMPARISON
@@ -69,8 +77,8 @@ SET @columns = ''
  
 SET @SubQry = 
  CHAR(9)+ 'SELECT ''' + @table1 + ''' AS TableName, ' + SUBSTRING(@columns, 0, LEN(@columns)) 		+ CHAR(13)+CHAR(10)
-+CHAR(9)+ 'FROM ' + @Table1 										+ CHAR(13)+CHAR(10)
-+CHAR(9)+ 'UNION ALL'											+ CHAR(13)+CHAR(10)
++CHAR(9)+ 'FROM ' + @Table1 																		+ CHAR(13)+CHAR(10)
++CHAR(9)+ 'UNION ALL'																				+ CHAR(13)+CHAR(10)
 +CHAR(9)+ 'SELECT ''' + @table2 + ''' As TableName, ' + SUBSTRING(@columns, 0, LEN(@columns))		+ CHAR(13)+CHAR(10)
 +CHAR(9)+ 'FROM ' + @Table2
 
@@ -78,17 +86,17 @@ SET @SubQry =
 
 SET @SQL = 
   'SELECT Max(TableName) as TableName, ' + SUBSTRING(@columns, 0, LEN(@columns))			+ CHAR(13)+CHAR(10)
-+ 'FROM ('												+ CHAR(13)+CHAR(10)
-			+ @SubQry									+ CHAR(13)+CHAR(10)
-+       ') A '												+ CHAR(13)+CHAR(10)
-+ 'GROUP BY '							+ SUBSTRING(@columns, 0, LEN(@columns))	+ CHAR(13)+CHAR(10)
-+ 'HAVING COUNT(*) = 1'											+ CHAR(13)+CHAR(10)
---+ 'ORDER BY' + SUBSTRING(@columns, 0, LEN(@columns))							+ CHAR(13)+CHAR(10)
++ 'FROM ('																					+ CHAR(13)+CHAR(10)
+			+ @SubQry																		+ CHAR(13)+CHAR(10)
++       ') A '																				+ CHAR(13)+CHAR(10)
++ 'GROUP BY '							+ SUBSTRING(@columns, 0, LEN(@columns))				+ CHAR(13)+CHAR(10)
++ 'HAVING COUNT(*) > 1'																		+ CHAR(13)+CHAR(10)
++ 'ORDER BY' + SUBSTRING(@ordercolumns, 0, LEN(@ordercolumns)) + ',TableName'				+ CHAR(13)+CHAR(10)
  
  
 PRINT '************************************************************************************************************************'
 																											    + CHAR(13)+CHAR(10)+
-	  'Any rows where there are any data value differences between two tables are listed in the data grid.'	    + CHAR(13)+CHAR(10)+
+	  'Any rows where there are any data value differences between two tables are listed in the data grid.'		+ CHAR(13)+CHAR(10)+
 	  'If there are entries that are listed for only one table, this means that data is unique to that table'   + CHAR(13)+CHAR(10)+
 	  '************************************************************************************************************************'
 	  
@@ -98,3 +106,7 @@ PRINT '-------------------------------------------------------------------------
 
 PRINT @SQL 
 EXEC ( @SQL)
+
+
+
+
