@@ -90,7 +90,7 @@ SET @SQL =
 			+ @SubQry																		+ CHAR(13)+CHAR(10)
 +       ') A '																				+ CHAR(13)+CHAR(10)
 + 'GROUP BY '							+ SUBSTRING(@columns, 0, LEN(@columns))				+ CHAR(13)+CHAR(10)
-+ 'HAVING COUNT(*) > 1'																		+ CHAR(13)+CHAR(10)
++ 'HAVING COUNT(*) = 1'																		+ CHAR(13)+CHAR(10)
 + 'ORDER BY' + SUBSTRING(@ordercolumns, 0, LEN(@ordercolumns)) + ',TableName'				+ CHAR(13)+CHAR(10)
  
  
